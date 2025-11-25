@@ -10,6 +10,7 @@ use App\Models\UserRegistration;
 use App\Models\AdminActivityLog;
 use App\Http\Controllers\Auth\UserRegistrationController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
@@ -28,7 +29,7 @@ class AdminController extends Controller
         $stats = [
             'total_users' => User::count(),
             'active_users' => User::active()->count(),
-            'pending_registrations' => UserRegistration::pending()->emailVerified()->count(),
+            'pending_registrations' => UserRegistration::pending()->count(),
             'recent_activities' => AdminActivityLog::with('user')->recent(7)->latest()->take(10)->get()
         ];
 
@@ -56,6 +57,8 @@ class AdminController extends Controller
                 $query->active();
             } elseif ($request->status === 'inactive') {
                 $query->inactive();
+            } elseif ($request->status === 'pending') {
+                $query->where('status', 'pending');
             }
         }
 
@@ -96,7 +99,7 @@ class AdminController extends Controller
             'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
             'username' => ['required', 'string', Rule::unique('users')->ignore($user->id)],
             'phone' => 'nullable|string|max:20',
-            'status' => 'required|boolean',
+            'status' => ['required', 'string', Rule::in(['pending', 'active', 'inactive'])],
             'notes' => 'nullable|string|max:1000',
         ]);
 
@@ -159,7 +162,7 @@ class AdminController extends Controller
     public function toggleUserStatus(User $user)
     {
         $oldStatus = $user->status;
-        $newStatus = !$oldStatus;
+        $newStatus = $user->status === 'active' ? 'inactive' : 'active';
         
         $user->update(['status' => $newStatus]);
 
@@ -179,7 +182,7 @@ class AdminController extends Controller
             request()->userAgent()
         );
 
-        $message = $newStatus ? 'User berhasil diaktifkan.' : 'User berhasil dinonaktifkan.';
+        $message = $newStatus === 'active' ? 'User berhasil diaktifkan.' : 'User berhasil dinonaktifkan.';
         return back()->with('success', $message);
     }
 
@@ -188,8 +191,8 @@ class AdminController extends Controller
      */
     public function pendingRegistrations()
     {
-        $registrations = UserRegistration::pending()
-            ->emailVerified()
+        $registrations = UserRegistration::with(['operatorVerifier', 'approvedBy'])
+            ->pending()
             ->latest()
             ->paginate(15);
 
@@ -213,8 +216,8 @@ class AdminController extends Controller
             'admin_notes' => 'nullable|string|max:1000'
         ]);
 
-        if ($registration->status !== 'pending') {
-            return back()->with('error', 'Registrasi ini sudah diproses.');
+        if (!$registration->isOperatorVerified()) {
+            return back()->with('error', 'Registrasi harus diverifikasi operator terlebih dahulu.');
         }
 
         $registration->update([
@@ -241,6 +244,34 @@ class AdminController extends Controller
         );
 
         return back()->with('success', 'Registrasi berhasil disetujui dan akun user telah dibuat.');
+    }
+
+    /**
+     * Operator verifies registration before super admin approval.
+     */
+    public function operatorVerifyRegistration(Request $request, UserRegistration $registration)
+    {
+        $request->validate([
+            'admin_notes' => 'nullable|string|max:1000'
+        ]);
+
+        $user = Auth::user();
+
+        if (!$user->hasAnyRole(['operator', 'super_admin'])) {
+            abort(403, 'Hanya operator atau super admin yang dapat memverifikasi registrasi.');
+        }
+
+        if ($registration->status !== 'pending') {
+            return back()->with('error', 'Registrasi ini sudah diproses.');
+        }
+
+        $registration->update([
+            'operator_verified_at' => now(),
+            'operator_verified_by' => $user->id,
+            'admin_notes' => $request->admin_notes
+        ]);
+
+        return back()->with('success', 'Registrasi telah diverifikasi operator. Menunggu persetujuan super admin.');
     }
 
     /**

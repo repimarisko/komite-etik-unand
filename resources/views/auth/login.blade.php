@@ -16,7 +16,7 @@
                 Login Admin
             </h2>
             <p class="mt-2 text-center text-sm text-gray-600">
-                Gunakan email: admin@admin.com dan password: admin
+                Gunakan akun yang diberikan, contoh: superadmin@komite-etik.unand.ac.id / password123
             </p>
         </div>
         

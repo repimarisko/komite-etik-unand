@@ -26,7 +26,7 @@
                         <!-- Preview Gambar -->
                         <div class="mr-4 flex-shrink-0">
                             @if($item->banner_image)
-                                <div class="w-24 h-24 rounded-lg overflow-hidden bg-cover bg-center border border-gray-200" style="background-image: url('{{ asset('storage/' . $item->banner_image) }}')"></div>
+                                <div class="w-24 h-24 rounded-lg overflow-hidden bg-cover bg-center border border-gray-200" style="background-image: url('{{ $item->banner_image_url }}')"></div>
                             @else
                                 <div class="w-24 h-24 rounded-lg overflow-hidden bg-gray-200 flex items-center justify-center">
                                     <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

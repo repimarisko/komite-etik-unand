@@ -24,14 +24,17 @@ class UserRegistration extends Model
         'generated_username',
         'generated_password',
         'credentials_sent',
-        'credentials_sent_at'
+        'credentials_sent_at',
+        'operator_verified_at',
+        'operator_verified_by',
     ];
 
     protected $casts = [
         'email_verified_at' => 'datetime',
         'approved_at' => 'datetime',
         'credentials_sent' => 'boolean',
-        'credentials_sent_at' => 'datetime'
+        'credentials_sent_at' => 'datetime',
+        'operator_verified_at' => 'datetime',
     ];
 
     protected $hidden = [
@@ -45,6 +48,14 @@ class UserRegistration extends Model
     public function approvedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    /**
+     * Get operator who verified this registration.
+     */
+    public function operatorVerifier(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'operator_verified_by');
     }
 
     /**
@@ -100,6 +111,14 @@ class UserRegistration extends Model
     }
 
     /**
+     * Check if registration is operator verified.
+     */
+    public function isOperatorVerified(): bool
+    {
+        return !is_null($this->operator_verified_at);
+    }
+
+    /**
      * Check if registration is rejected.
      */
     public function isRejected(): bool
@@ -121,6 +140,14 @@ class UserRegistration extends Model
     public function scopePending($query)
     {
         return $query->where('status', 'pending');
+    }
+
+    /**
+     * Scope for operator verified registrations.
+     */
+    public function scopeOperatorVerified($query)
+    {
+        return $query->whereNotNull('operator_verified_at');
     }
 
     /**

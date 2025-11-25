@@ -37,21 +37,20 @@ class CreateAdminUser extends Command
             return 1;
         }
 
-        // Create admin role if it doesn't exist
-        $adminRole = Role::firstOrCreate(
-            ['name' => 'admin'],
-            [
-                'display_name' => 'Administrator',
-                'description' => 'System Administrator with full access'
-            ]
-        );
-
-        // Create super_admin role if it doesn't exist
+        // Ensure core roles exist
         $superAdminRole = Role::firstOrCreate(
             ['name' => 'super_admin'],
             [
                 'display_name' => 'Super Administrator',
                 'description' => 'Super Administrator with complete system control'
+            ]
+        );
+
+        $operatorRole = Role::firstOrCreate(
+            ['name' => 'operator'],
+            [
+                'display_name' => 'Operator',
+                'description' => 'Operator yang mengelola user dan eksport data'
             ]
         );
 
@@ -62,20 +61,20 @@ class CreateAdminUser extends Command
             'password' => Hash::make($password),
             'username' => 'admin',
             'phone' => '081234567890',
-            'status' => true,
-            'role' => 'admin',
+            'status' => 'active',
+            'role' => 'super_admin',
             'approved_at' => now(),
             'email_verified_at' => now(),
         ]);
 
         // Assign admin role
-        $user->assignRole('admin');
         $user->assignRole('super_admin');
+        $user->assignRole('operator');
 
         $this->info("Admin user created successfully!");
         $this->info("Email: {$email}");
         $this->info("Password: {$password}");
-        $this->info("Roles: admin, super_admin");
+        $this->info("Roles: super_admin, operator");
 
         return 0;
     }

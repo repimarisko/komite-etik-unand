@@ -1,403 +1,882 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
-@section('content')
-    <div class="bg-gradient-to-br from-unand-50 to-white overflow-hidden shadow-xl sm:rounded-lg">
-        <div class="p-8 text-gray-900">
-            <!-- Header -->
-            <div class="mb-12 text-center">
-                <h1
-                    class="text-5xl font-bold bg-gradient-to-r from-unand-600 to-unand-800 bg-clip-text text-transparent mb-4">
-                    Selamat Datang di Komite Etik Universitas Andalas</h1>
-                <p class="text-xl text-gray-600 font-medium mb-2">Sistem Informasi Pengajuan Penelitian Etik</p>
-                <p class="text-lg text-gray-500">Memastikan standar etika penelitian yang tinggi untuk kemajuan ilmu
-                    pengetahuan</p>
-                <div class="w-32 h-1 bg-gradient-to-r from-unand-400 to-unand-600 mx-auto mt-6 rounded-full"></div>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard | {{ config('app.name', 'Komite Etik UNAND') }}</title>
+
+    @php
+        use Illuminate\Support\Str;
+
+        $heroImage = $featuredNews?->banner_image_url
+            ?? 'https://images.unsplash.com/photo-1523741543316-beb7fc7023d8?auto=format&fit=crop&w=1400&q=80';
+        $heroTitle = $featuredNews->title ?? 'Portal Komite Etik Universitas Andalas';
+        $heroExcerpt = $featuredNews
+            ? Str::limit(strip_tags($featuredNews->content), 190)
+            : 'Layanan satu pintu untuk pengajuan, pemantauan, dan publikasi berita terkait penilaian etik penelitian.';
+        $newsList = $latestNews->when($featuredNews, fn($items) => $items->where('id', '!=', $featuredNews->id))->take(6);
+    @endphp
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --blue-900: #04134b;
+            --blue-800: #0c2f7a;
+            --blue-700: #1e449d;
+            --blue-100: #e9efff;
+            --yellow: #f6c343;
+            --muted: #6b7085;
+            --text: #14172a;
+            --bg: #f7f8fc;
+            --border: #e5e8f1;
+            --surface: #ffffff;
+            --max-width: 1200px;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Source Sans 3', 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .container {
+            width: min(92%, var(--max-width));
+            margin: 0 auto;
+        }
+
+        .top-bar {
+            background: #f0f2f8;
+            color: var(--muted);
+            font-size: 0.92rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .top-bar-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.45rem 0;
+            flex-wrap: wrap;
+        }
+
+        .top-left {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            flex-wrap: wrap;
+        }
+
+        .flag {
+            width: 30px;
+            height: 20px;
+            border-radius: 3px;
+            background: linear-gradient(90deg, #0a3d91 65%, #ffd700 35%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            letter-spacing: 0.06em;
+            color: #fff;
+            font-weight: 700;
+        }
+
+        header {
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+            padding: 1.1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            backdrop-filter: blur(8px);
+        }
+
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-mark {
+            width: 88px;
+            height: 60px;
+            border: 2px solid #0a3d91;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(160deg, #0f2f7a, #0a3d91);
+        }
+
+        .logo-mark::before,
+        .logo-mark::after {
+            content: '';
+            position: absolute;
+            top: 12px;
+            bottom: 12px;
+            width: 2px;
+            background: #fff;
+        }
+
+        .logo-mark::before {
+            left: 22px;
+        }
+
+        .logo-mark::after {
+            right: 22px;
+        }
+
+        .logo-flag {
+            position: absolute;
+            bottom: 10px;
+            left: 12px;
+            width: 32px;
+            height: 20px;
+            border: 1px solid #fff;
+            background: #0f3e94;
+            color: #ffd700;
+            font-size: 0.55rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            color: var(--blue-900);
+            line-height: 1.1;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            margin-left: auto;
+        }
+
+        .pill {
+            border: 1px solid var(--border);
+            padding: 0.45rem 0.95rem;
+            border-radius: 999px;
+            display: inline-flex;
+            gap: 0.35rem;
+            align-items: center;
+            font-weight: 600;
+            color: var(--blue-800);
+            background: #fff;
+        }
+
+        .primary-btn {
+            background: var(--yellow);
+            color: #3b2a01;
+            border: none;
+            padding: 0.6rem 1.15rem;
+            border-radius: 999px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        nav {
+            background: var(--blue-900);
+            color: #fff;
+        }
+
+        .nav-inner {
+            display: flex;
+            gap: 1.6rem;
+            align-items: center;
+            padding: 0.8rem 0;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .nav-inner::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-inner a {
+            color: inherit;
+            font-weight: 600;
+            font-size: 0.98rem;
+            white-space: nowrap;
+        }
+
+        .hero {
+            background: radial-gradient(circle at 20% 20%, #e8edff 0, #f3f5ff 30%, #fff 65%);
+            padding: 3.3rem 0 2.6rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 80% 10%, rgba(12, 47, 122, 0.08), transparent 35%),
+                radial-gradient(circle at 10% 80%, rgba(246, 195, 67, 0.1), transparent 30%);
+            pointer-events: none;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2.4rem;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-copy h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.3rem, 4vw, 3.1rem);
+            margin: 0 0 1rem;
+            color: var(--blue-900);
+            line-height: 1.1;
+        }
+
+        .hero-copy p {
+            margin: 0 0 1.5rem;
+            color: #2f3347;
+            font-size: 1.05rem;
+        }
+
+        .eyebrow {
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            font-size: 0.78rem;
+            color: var(--muted);
+            margin: 0 0 0.7rem;
+            font-weight: 700;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .ghost-btn {
+            border: 1px solid var(--border);
+            padding: 0.6rem 1.05rem;
+            border-radius: 999px;
+            font-weight: 700;
+            color: var(--blue-800);
+            background: #fff;
+        }
+
+        .hero-visual {
+            position: relative;
+        }
+
+        .hero-card {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            min-height: 320px;
+            background: #0f1d4a;
+            color: #fff;
+            box-shadow: 0 22px 60px rgba(10, 20, 70, 0.32);
+        }
+
+        .hero-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(140deg, rgba(4, 19, 75, 0.75), rgba(4, 19, 75, 0));
+            z-index: 1;
+        }
+
+        .hero-card__image {
+            position: absolute;
+            inset: 0;
+            background-image: var(--hero-image);
+            background-size: cover;
+            background-position: center;
+            transform: scale(1.02);
+        }
+
+        .hero-card__content {
+            position: relative;
+            z-index: 2;
+            padding: 1.3rem 1.3rem 1.4rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            min-height: 320px;
+            background: linear-gradient(180deg, rgba(6, 21, 70, 0) 0%, rgba(6, 21, 70, 0.84) 72%);
+        }
+
+        .hero-pill {
+            display: inline-flex;
+            gap: 0.35rem;
+            align-items: center;
+            padding: 0.35rem 0.7rem;
+            border-radius: 999px;
+            font-size: 0.83rem;
+            background: rgba(255, 255, 255, 0.16);
+            color: #e8edff;
+        }
+
+        .hero-card__title {
+            margin: 0;
+            font-size: 1.25rem;
+            line-height: 1.3;
+            font-weight: 700;
+        }
+
+        .glance {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 0.9rem;
+            margin-top: 1.25rem;
+        }
+
+        .glance-item {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 0.85rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+            box-shadow: 0 12px 30px rgba(16, 30, 80, 0.08);
+        }
+
+        .glance-label {
+            font-size: 0.83rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-weight: 700;
+        }
+
+        .glance-value {
+            font-size: 1.15rem;
+            color: var(--blue-800);
+            font-weight: 700;
+        }
+
+        .section {
+            padding: 2.8rem 0;
+        }
+
+        .section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.3rem;
+            flex-wrap: wrap;
+        }
+
+        .section-title {
+            margin: 0;
+            font-size: 1.9rem;
+            color: var(--blue-900);
+        }
+
+        .section-kicker {
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+        }
+
+        .action-card {
+            position: relative;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.1rem 1.1rem 1.2rem;
+            display: flex;
+            gap: 0.9rem;
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+            box-shadow: 0 14px 32px rgba(13, 26, 70, 0.08);
+        }
+
+        .action-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 42px rgba(13, 26, 70, 0.14);
+        }
+
+        .action-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            font-size: 1.2rem;
+            background: var(--blue-100);
+            color: var(--blue-700);
+            flex-shrink: 0;
+        }
+
+        .action-card h3 {
+            margin: 0 0 0.35rem;
+            color: var(--blue-800);
+            font-size: 1.05rem;
+        }
+
+        .action-card p {
+            margin: 0;
+            color: #2f3347;
+            font-size: 0.98rem;
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.15rem;
+        }
+
+        .news-card {
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            min-height: 340px;
+            box-shadow: 0 16px 36px rgba(10, 20, 60, 0.1);
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .news-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 42px rgba(10, 20, 60, 0.18);
+        }
+
+        .news-thumb {
+            height: 150px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .news-body {
+            padding: 1.1rem 1rem 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.55rem;
+            flex: 1;
+        }
+
+        .news-tag {
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-size: 0.75rem;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .news-body h3 {
+            margin: 0;
+            font-size: 1.08rem;
+            color: var(--blue-800);
+        }
+
+        .news-body p {
+            margin: 0;
+            color: #2e3044;
+            font-size: 0.97rem;
+            line-height: 1.45;
+        }
+
+        .news-meta {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-top: auto;
+        }
+
+        .pill-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 0.9rem;
+            border-radius: 999px;
+            background: #fff;
+            border: 1px solid var(--border);
+            font-weight: 700;
+            color: var(--blue-800);
+        }
+
+        .guides {
+            background: linear-gradient(120deg, #f5f7ff, #fff8ed);
+            border-radius: 18px;
+            padding: 1.8rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 16px 36px rgba(13, 26, 70, 0.08);
+        }
+
+        .guides-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 1rem;
+        }
+
+        .guide-item {
+            padding: 1rem 1.1rem;
+            background: rgba(255, 255, 255, 0.78);
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(4px);
+            box-shadow: 0 10px 24px rgba(10, 20, 60, 0.08);
+        }
+
+        .guide-item h4 {
+            margin: 0 0 0.35rem;
+            color: var(--blue-900);
+        }
+
+        .guide-item p {
+            margin: 0;
+            color: #2f3347;
+            font-size: 0.95rem;
+        }
+
+        footer {
+            padding: 1.6rem 0 2.2rem;
+            background: #0a1541;
+            color: #dbe2ff;
+            margin-top: 2.4rem;
+        }
+
+        .footer-inner {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            justify-content: space-between;
+        }
+
+        .footer-brand h3 {
+            margin: 0 0 0.4rem;
+            font-size: 1.3rem;
+            color: #fff;
+        }
+
+        .footer-links {
+            display: grid;
+            gap: 0.4rem;
+        }
+
+        .footer-links a {
+            color: #dbe2ff;
+            font-weight: 600;
+        }
+
+        @media (max-width: 900px) {
+            header {
+                position: static;
+            }
+
+            .header-inner {
+                align-items: flex-start;
+            }
+
+            .nav-inner {
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .hero {
+                padding: 2.5rem 0 2rem;
+            }
+
+            .hero-card__content {
+                min-height: 260px;
+            }
+
+            .glance {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="top-bar">
+        <div class="container top-bar-content">
+            <div class="top-left">
+                <span class="flag">EU</span>
+                <span>Portal resmi Komite Etik – terinspirasi layanan publik Eropa</span>
             </div>
+            <a href="#" style="font-weight: 700; color: var(--blue-800);">Cara memverifikasi</a>
+        </div>
+    </div>
 
-            <!-- Feature Overview Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-                <div
-                    class="group bg-gradient-to-br from-white to-blue-50 p-6 rounded-xl border border-blue-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
-                    <div class="flex items-center">
-                        <div
-                            class="p-3 rounded-full bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg group-hover:scale-110 transition-transform duration-300 flex items-center justify-center">
-                            <svg class="w-6 h-6 my-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
-                                </path>
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <h3
-                                class="text-lg font-semibold text-gray-800 group-hover:text-blue-700 transition-colors duration-300">
-                                Pengajuan Etik</h3>
-                            <p class="text-gray-600">Proses pengajuan etik penelitian</p>
-                        </div>
-                    </div>
+    <header>
+        <div class="container header-inner">
+            <div class="logo-group">
+                <div class="logo-mark">
+                    <span class="logo-flag">EU</span>
                 </div>
-
-
-
-                <div
-                    class="group bg-gradient-to-br from-white to-blue-50 p-6 rounded-xl border border-blue-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
-                    <div class="flex items-center">
-                        <div
-                            class="p-3 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                </path>
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <h3
-                                class="text-lg font-semibold text-gray-800 group-hover:text-blue-700 transition-colors duration-300">
-                                Review Etik</h3>
-                            <p class="text-gray-600">Proses review profesional</p>
-                        </div>
-                    </div>
+                <div class="logo-text">
+                    <div>Komite Etik</div>
+                    <div style="font-size: 1.05rem; font-weight: 600; color: var(--blue-800);">Universitas Andalas</div>
                 </div>
+            </div>
+            <div class="header-actions">
+                <div class="pill">🌐 EN</div>
+                @auth
+                    <a href="{{ route('logout') }}"
+                        onclick="event.preventDefault(); document.getElementById('logout-form-dashboard').submit();"
+                        class="ghost-btn">Logout</a>
+                    <form id="logout-form-dashboard" method="POST" action="{{ route('logout') }}" style="display: none;">
+                        @csrf
+                    </form>
+                @else
+                    <a class="ghost-btn" href="{{ route('login') }}">Login</a>
+                    <a class="primary-btn" href="{{ route('register') }}">Daftar</a>
+                @endauth
+            </div>
+        </div>
+    </header>
 
-                <div
-                    class="group bg-gradient-to-br from-white to-green-50 p-6 rounded-xl border border-green-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
-                    <div class="flex items-center">
-                        <div
-                            class="p-3 rounded-full bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <h3
-                                class="text-lg font-semibold text-gray-800 group-hover:text-green-700 transition-colors duration-300">
-                                Sertifikat Etik</h3>
-                            <p class="text-gray-600">Sertifikat kelayakan etik</p>
-                        </div>
-                    </div>
+    <nav>
+        <div class="container nav-inner">
+            <a href="#layanan">Layanan</a>
+            <a href="#berita">Berita</a>
+            <a href="#panduan">Panduan</a>
+            <a href="{{ route('profil.index') }}">Profil Komite</a>
+            <a href="{{ route('dosen.show') }}">Data Dosen</a>
+        </div>
+    </nav>
+
+    <section class="hero" style="--hero-image: url('{{ $heroImage }}');">
+        <div class="container hero-grid">
+            <div class="hero-copy">
+                <p class="eyebrow">Dashboard</p>
+                <h1>{{ $heroTitle }}</h1>
+                <p>{{ $heroExcerpt }}</p>
+                <div class="hero-actions">
+                    @auth
+                        <a class="primary-btn" href="{{ route('pengajuan-baru.index') }}">Mulai Pengajuan</a>
+                        <a class="ghost-btn" href="#layanan">Lihat Menu Layanan</a>
+                    @else
+                        <a class="primary-btn" href="{{ route('login') }}">Masuk untuk ajukan</a>
+                        <a class="ghost-btn" href="#berita">Lihat berita terbaru</a>
+                    @endauth
                 </div>
-
-                <div
-                    class="group bg-gradient-to-br from-white to-purple-50 p-6 rounded-xl border border-purple-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
-                    <div class="flex items-center">
-                        <div
-                            class="p-3 rounded-full bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <h3
-                                class="text-lg font-semibold text-gray-800 group-hover:text-purple-700 transition-colors duration-300">
-                                Monitoring</h3>
-                            <p class="text-gray-600">Pemantauan penelitian</p>
-                        </div>
+                <div class="glance">
+                    <div class="glance-item">
+                        <span class="glance-label">Status Protokol</span>
+                        <span class="glance-value">Transparan & Terpantau</span>
+                    </div>
+                    <div class="glance-item">
+                        <span class="glance-label">Dukungan Sekretariat</span>
+                        <span class="glance-value">Setiap langkah</span>
                     </div>
                 </div>
             </div>
-
-            <!-- News Section -->
-            @if ($featuredNews || $latestNews->count() > 0)
-                <div class="mb-12">
-                    <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">
-                        <span class="bg-gradient-to-r from-unand-600 to-unand-800 bg-clip-text text-transparent">Berita &
-                            Pengumuman</span>
-                    </h2>
-
-                    @if ($featuredNews)
-                        <!-- Featured News Banner -->
-                        <a href="{{ route('news.show', $featuredNews) }}" class="block">
-                            <div
-                                class="mb-8 bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
-                                @if ($featuredNews->banner_image)
-                                    <div class="h-64 bg-cover bg-center relative"
-                                        style="background-image: url('{{ asset('storage/' . $featuredNews->banner_image) }}')">
-                                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                                        <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
-                                            <span
-                                                class="inline-block px-3 py-1 bg-unand-600 text-white text-xs font-semibold rounded-full mb-3">BERITA
-                                                UTAMA</span>
-                                            <h3 class="text-2xl font-bold mb-2">{{ $featuredNews->title }}</h3>
-                                            <p class="text-gray-200 text-sm">{{ $featuredNews->formatted_published_date }}</p>
-                                        </div>
-                                    </div>
-                                @else
-                                    <div class="h-32 bg-gradient-to-r from-unand-600 to-unand-800 relative">
-                                        <div class="absolute inset-0 flex items-center justify-center">
-                                            <div class="text-center text-white">
-                                                <span
-                                                    class="inline-block px-3 py-1 bg-white/20 text-white text-xs font-semibold rounded-full mb-3">BERITA
-                                                    UTAMA</span>
-                                                <h3 class="text-2xl font-bold">{{ $featuredNews->title }}</h3>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endif
-                                <div class="p-6">
-                                    <p class="text-gray-700 leading-relaxed">{{ $featuredNews->getExcerptAttribute(200) }}</p>
-                                    <div class="mt-4 flex items-center justify-between">
-                                        <span class="text-sm text-gray-500">Dipublikasikan:
-                                            {{ $featuredNews->formatted_published_date }}</span>
-                                        <span class="text-sm text-unand-600 font-medium">{{ $featuredNews->created_by }}</span>
-                                    </div>
-                                </div>
-                            </div>
+            <div class="hero-visual">
+                <div class="hero-card">
+                    <div class="hero-card__image"></div>
+                    <div class="hero-card__content">
+                        <span class="hero-pill">Sorotan</span>
+                        <p class="hero-card__title">
+                            {{ $featuredNews->title ?? 'Berita terbaru seputar kebijakan etik dan pengumuman komite.' }}
+                        </p>
+                        <a class="pill-link"
+                            href="{{ $featuredNews ? route('news.show', $featuredNews) : '#' }}">
+                            {{ $featuredNews ? 'Baca selengkapnya' : 'Lihat agenda komite' }} →
                         </a>
-                    @endif
-
-                    @if ($latestNews->count() > 0)
-                        <!-- Latest News Grid -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            @foreach ($latestNews as $news)
-                                <a href="{{ route('news.show', $news) }}" class="block">
-                                    <div
-                                        class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                                        @if ($news->banner_image)
-                                            <div class="h-48 bg-cover bg-center"
-                                                style="background-image: url('{{ asset('storage/' . $news->banner_image) }}')">
-                                            </div>
-                                        @else
-                                            <div
-                                                class="h-48 bg-gradient-to-br from-unand-500 to-unand-700 flex items-center justify-center">
-                                                <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z">
-                                                </path>
-                                            </svg>
-                                        </div>
-                                    @endif
-                                    <div class="p-5">
-                                        <h3 class="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
-                                            {{ $news->title }}</h3>
-                                        <p class="text-gray-600 text-sm mb-3 line-clamp-3">
-                                            {{ $news->getExcerptAttribute(120) }}</p>
-                                        <div class="flex items-center justify-between text-xs text-gray-500">
-                                            <span>{{ $news->formatted_published_date }}</span>
-                                            <span>{{ $news->created_by }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                            @endforeach
-                        </div>
-                    @endif
-                </div>
-            @endif
-
-            <!-- Main Content -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Menu Utama -->
-                <div
-                    class="bg-white border border-gray-200 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
-                    <h2 class="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
-                        <div class="w-1 h-6 bg-gradient-to-b from-unand-500 to-unand-700 rounded-full mr-3"></div>
-                        @if (session('admin_logged_in'))
-                            Menu Admin
-                        @else
-                            Layanan Komite Etik
-                        @endif
-                    </h2>
-                    <div class="space-y-4">
-                        <a href="{{ route('profil.index') }}"
-                            class="group flex items-center p-4 bg-gradient-to-r from-gray-50 to-unand-50 hover:from-unand-50 hover:to-unand-100 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-md">
-                            <div
-                                class="p-3 bg-gradient-to-br from-unand-100 to-unand-200 rounded-xl mr-4 group-hover:from-unand-200 group-hover:to-unand-300 transition-all duration-300">
-                                <svg class="w-5 h-5 text-unand-600 group-hover:text-unand-700 transition-colors duration-300"
-                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3
-                                    class="font-medium text-gray-800 group-hover:text-unand-700 transition-colors duration-300">
-                                    Profil Komite Etik</h3>
-                                <p class="text-sm text-gray-600">Informasi tentang komite etik dan anggota</p>
-                            </div>
-                        </a>
-
-                        @if (session('admin_logged_in'))
-                            <a href="{{ route('pengajuan-baru.index') }}"
-                                class="group flex items-center p-4 bg-gradient-to-r from-gray-50 to-blue-50 hover:from-blue-50 hover:to-blue-100 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-md">
-                                <div
-                                    class="p-3 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl mr-4 group-hover:from-blue-200 group-hover:to-blue-300 transition-all duration-300">
-                                    <svg class="w-5 h-5 text-blue-600 group-hover:text-blue-700 transition-colors duration-300"
-                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3
-                                        class="font-medium text-gray-800 group-hover:text-blue-700 transition-colors duration-300">
-                                        Formulir Pengajuan Baru</h3>
-                                    <p class="text-sm text-gray-600">Ajukan penelitian etik baru</p>
-                                </div>
-                            </a>
-
-                            <a href="{{ route('ktd-sae.index') }}"
-                                class="group flex items-center p-4 bg-gradient-to-r from-gray-50 to-red-50 hover:from-red-50 hover:to-red-100 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-md">
-                                <div
-                                    class="p-3 bg-gradient-to-br from-red-100 to-red-200 rounded-xl mr-4 group-hover:from-red-200 group-hover:to-red-300 transition-all duration-300">
-                                    <svg class="w-5 h-5 text-red-600 group-hover:text-red-700 transition-colors duration-300"
-                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z">
-                                        </path>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3
-                                        class="font-medium text-gray-800 group-hover:text-red-700 transition-colors duration-300">
-                                        Modul KTD-SAE</h3>
-                                    <p class="text-sm text-gray-600">Kejadian Tidak Diharapkan - Serious Adverse Event</p>
-                                </div>
-                            </a>
-                        @else
-                            <div
-                                class="group flex items-center p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl border-2 border-dashed border-blue-200">
-                                <div class="p-3 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl mr-4">
-                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
-                                        </path>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 class="font-medium text-gray-800">Akses Formulir Pengajuan</h3>
-                                    <p class="text-sm text-gray-600">Login diperlukan untuk mengakses formulir pengajuan
-                                    </p>
-                                    <a href="{{ route('login') }}"
-                                        class="text-sm text-blue-600 hover:text-blue-800 font-medium">Login sekarang →</a>
-                                </div>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-
-                <!-- Informasi -->
-                <div
-                    class="bg-white border border-gray-200 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
-                    <h2 class="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
-                        <div class="w-1 h-6 bg-gradient-to-b from-blue-500 to-blue-700 rounded-full mr-3"></div>
-                        Informasi Penting
-                    </h2>
-                    <div class="space-y-4">
-                        <div
-                            class="p-5 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105">
-                            <div class="flex items-start">
-                                <div class="p-2 bg-blue-500 rounded-lg mr-4 mt-1">
-                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                        </path>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 class="font-semibold text-blue-800 mb-2">Panduan Pengajuan</h3>
-                                    <p class="text-sm text-blue-700 leading-relaxed">Pastikan semua dokumen telah
-                                        dilengkapi sebelum mengajukan permohonan etik penelitian. Dokumen harus sesuai
-                                        dengan standar internasional.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div
-                            class="p-5 bg-gradient-to-r from-yellow-50 to-yellow-100 border border-yellow-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105">
-                            <div class="flex items-start">
-                                <div class="p-2 bg-yellow-500 rounded-lg mr-4 mt-1">
-                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 class="font-semibold text-yellow-800 mb-2">Waktu Proses</h3>
-                                    <p class="text-sm text-yellow-700 leading-relaxed">Proses review membutuhkan waktu
-                                        14-21 hari kerja setelah dokumen lengkap diterima. Pastikan dokumen sudah lengkap
-                                        untuk mempercepat proses.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div
-                            class="p-5 bg-gradient-to-r from-green-50 to-green-100 border border-green-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105">
-                            <div class="flex items-start">
-                                <div class="p-2 bg-green-500 rounded-lg mr-4 mt-1">
-                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z">
-                                        </path>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 class="font-semibold text-green-800 mb-2">Kontak & Bantuan</h3>
-                                    <p class="text-sm text-green-700 leading-relaxed">Hubungi sekretariat komite etik untuk
-                                        bantuan lebih lanjut. Tim kami siap membantu Anda dalam proses pengajuan.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        @if (!session('admin_logged_in'))
-                            <div
-                                class="p-5 bg-gradient-to-r from-unand-50 to-unand-100 border border-unand-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105">
-                                <div class="flex items-start">
-                                    <div class="p-2 bg-unand-500 rounded-lg mr-4 mt-1">
-                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
-                                            </path>
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <h3 class="font-semibold text-unand-800 mb-2">Akses Peneliti</h3>
-                                        <p class="text-sm text-unand-700 leading-relaxed">Login untuk mengakses formulir
-                                            pengajuan, melacak status penelitian, dan mengelola dokumen Anda.</p>
-                                        <a href="{{ route('login') }}"
-                                            class="inline-block mt-2 px-4 py-2 bg-unand-600 text-white text-sm font-medium rounded-lg hover:bg-unand-700 transition-colors duration-200">Login
-                                            Sekarang</a>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
                     </div>
                 </div>
             </div>
+        </div>
+    </section>
 
-            @if (!session('admin_logged_in'))
-                <!-- Call to Action Section for Non-logged Users -->
-                <div
-                    class="mt-12 bg-gradient-to-r from-unand-600 to-unand-800 rounded-xl p-8 text-center text-white shadow-xl">
-                    <h2 class="text-3xl font-bold mb-4">Mulai Penelitian Etik Anda</h2>
-                    <p class="text-xl mb-6 text-unand-100">Bergabunglah dengan ribuan peneliti yang telah mempercayai
-                        Komite Etik UNAND</p>
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <a href="{{ route('login') }}"
-                            class="inline-flex items-center px-6 py-3 bg-white text-unand-700 font-semibold rounded-lg hover:bg-gray-100 transition-colors duration-200 shadow-lg">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1">
-                                </path>
-                            </svg>
-                            Login Peneliti
-                        </a>
-                        <a href="{{ route('profil.index') }}"
-                            class="inline-flex items-center px-6 py-3 bg-unand-500 text-white font-semibold rounded-lg hover:bg-unand-400 transition-colors duration-200 shadow-lg">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            Pelajari Lebih Lanjut
-                        </a>
-                    </div>
+    <section class="section" id="layanan">
+        <div class="container">
+            <div class="section-head">
+                <div>
+                    <p class="section-kicker">akses cepat</p>
+                    <h2 class="section-title">Layanan utama</h2>
+                </div>
+                <a class="pill-link" href="{{ route('profil.index') }}">Kenali komite →</a>
+            </div>
+            @php
+                $actions = [
+                    [
+                        'title' => 'Pengajuan Baru',
+                        'desc' => 'Kirim proposal penelitian untuk dinilai oleh Komite Etik.',
+                        'icon' => '📝',
+                        'link' => route('pengajuan-baru.index'),
+                    ],
+                    [
+                        'title' => 'Pengajuan Perbaikan',
+                        'desc' => 'Tambahkan revisi setelah menerima catatan perbaikan.',
+                        'icon' => '🧭',
+                        'link' => route('perbaikan.index'),
+                    ],
+                    [
+                        'title' => 'Amandemen',
+                        'desc' => 'Laporkan perubahan protokol atau metode penelitian.',
+                        'icon' => '📄',
+                        'link' => route('amandemen.index'),
+                    ],
+                    [
+                        'title' => 'Perpanjangan Penelitian',
+                        'desc' => 'Ajukan perpanjangan masa berlaku izin etik.',
+                        'icon' => '⏳',
+                        'link' => route('perpanjangan.index'),
+                    ],
+                    [
+                        'title' => 'Laporan Akhir',
+                        'desc' => 'Serahkan laporan hasil penelitian untuk penutupan.',
+                        'icon' => '✅',
+                        'link' => route('laporan-akhir.index'),
+                    ],
+                    [
+                        'title' => 'Modul KTD-SAE',
+                        'desc' => 'Laporkan kejadian tak diharapkan secara cepat.',
+                        'icon' => '🚑',
+                        'link' => route('ktd-sae.index'),
+                    ],
+                ];
+            @endphp
+            <div class="actions-grid">
+                @foreach ($actions as $action)
+                    <a href="{{ $action['link'] }}" class="action-card">
+                        <div class="action-icon">{{ $action['icon'] }}</div>
+                        <div>
+                            <h3>{{ $action['title'] }}</h3>
+                            <p>{{ $action['desc'] }}</p>
+                            @guest
+                                <span style="font-size: 0.85rem; color: var(--muted); font-weight: 600;">Login mungkin
+                                    diperlukan</span>
+                            @endguest
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="berita">
+        <div class="container">
+            <div class="section-head">
+                <div>
+                    <p class="section-kicker">berita & pembaruan</p>
+                    <h2 class="section-title">Suara terbaru dari Komite Etik</h2>
+                </div>
+                @if ($featuredNews)
+                    <a class="pill-link" href="{{ route('news.show', $featuredNews) }}">Baca berita unggulan →</a>
+                @endif
+            </div>
+            @if ($newsList->count())
+                <div class="news-grid">
+                    @foreach ($newsList as $news)
+                        <article class="news-card">
+                            <div class="news-thumb" style="background-image: url('{{ $news->banner_image_url }}');">
+                            </div>
+                            <div class="news-body">
+                                <span class="news-tag">Publikasi</span>
+                                <h3>{{ $news->title }}</h3>
+                                <p>{{ Str::limit(strip_tags($news->content), 130) }}</p>
+                                <div class="news-meta">
+                                    {{ optional($news->published_at)->translatedFormat('d M Y') ?? 'Tanggal belum tersedia' }}
+                                </div>
+                            </div>
+                        </article>
+                    @endforeach
+                </div>
+            @else
+                <div class="guide-item">
+                    <h4>Belum ada berita</h4>
+                    <p>Pengumuman akan tampil di sini segera setelah Komite Etik mempublikasikannya.</p>
                 </div>
             @endif
         </div>
-    </div>
-@endsection
+    </section>
+
+    <section class="section" id="panduan">
+        <div class="container">
+            <div class="guides">
+                <div class="section-head" style="margin-bottom: 1rem;">
+                    <div>
+                        <p class="section-kicker">panduan & referensi</p>
+                        <h2 class="section-title" style="font-size: 1.6rem;">Mulai dengan langkah yang jelas</h2>
+                    </div>
+                    <a class="pill-link" href="{{ route('profil.index') }}">Hubungi Sekretariat →</a>
+                </div>
+                <div class="guides-grid">
+                    <div class="guide-item">
+                        <h4>Checklist Berkas</h4>
+                        <p>Pastikan informed consent, protokol, dan lampiran etis tersusun rapi sebelum dikirim.</p>
+                    </div>
+                    <div class="guide-item">
+                        <h4>Timeline Penilaian</h4>
+                        <p>Pengajuan diproses terjadwal; pastikan tenggat sidang dipantau bersama tim Anda.</p>
+                    </div>
+                    <div class="guide-item">
+                        <h4>Perubahan Protokol</h4>
+                        <p>Amandemen wajib dilaporkan agar izin tetap relevan dengan praktik lapangan.</p>
+                    </div>
+                    <div class="guide-item">
+                        <h4>Konsultasi Awal</h4>
+                        <p>Butuh arahan? Sekretariat siap memberi dukungan sebelum pengajuan formal.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container footer-inner">
+            <div class="footer-brand">
+                <h3>Komite Etik UNAND</h3>
+                <p>Menjaga integritas riset dengan layanan transparan dan responsif.</p>
+            </div>
+            <div class="footer-links">
+                <a href="{{ route('profil.index') }}">Profil Komite</a>
+                <a href="#layanan">Layanan</a>
+                <a href="#berita">Berita</a>
+                <a href="#panduan">Panduan</a>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class News extends Model
 {
@@ -48,5 +50,92 @@ class News extends Model
         return strlen($this->content) > $length 
             ? substr($this->content, 0, $length) . '...' 
             : $this->content;
+    }
+
+    /**
+     * Accessor for full banner image URL with graceful fallback.
+     */
+    public function getBannerImageUrlAttribute(): string
+    {
+        if (!$this->banner_image) {
+            return asset('images/logo-unand.png');
+        }
+
+        if (filter_var($this->banner_image, FILTER_VALIDATE_URL)) {
+            return $this->banner_image;
+        }
+
+        $relativePath = ltrim($this->banner_image, '/');
+
+        if (Storage::disk('public')->exists($relativePath)) {
+            $hasSymlink = $this->ensurePublicStorageAccessible();
+
+            if (!$hasSymlink) {
+                $this->mirrorBannerToPublicDirectory($relativePath);
+            }
+
+            return asset('storage/' . $relativePath);
+        }
+
+        if (file_exists(public_path($relativePath))) {
+            return asset($relativePath);
+        }
+
+        return asset('images/logo-unand.png');
+    }
+
+    /**
+     * Ensure public/storage link exists or directory fallback.
+     */
+    protected function ensurePublicStorageAccessible(): bool
+    {
+        $linkPath = public_path('storage');
+        $targetPath = storage_path('app/public');
+
+        if (is_link($linkPath) || is_dir($linkPath)) {
+            return is_link($linkPath);
+        }
+
+        try {
+            symlink($targetPath, $linkPath);
+            return true;
+        } catch (\Throwable $e) {
+            Log::warning('Gagal membuat symbolic link storage -> public dari accessor.', [
+                'error' => $e->getMessage(),
+            ]);
+
+            if (!is_dir($linkPath)) {
+                mkdir($linkPath, 0755, true);
+            }
+
+            return false;
+        }
+    }
+
+    /**
+     * Copy banner file into public/storage if symlink not available.
+     */
+    protected function mirrorBannerToPublicDirectory(string $relativePath): void
+    {
+        $source = storage_path('app/public/' . $relativePath);
+        $destination = public_path('storage/' . $relativePath);
+
+        if (!is_file($source)) {
+            return;
+        }
+
+        $destinationDir = dirname($destination);
+        if (!is_dir($destinationDir)) {
+            mkdir($destinationDir, 0755, true);
+        }
+
+        try {
+            copy($source, $destination);
+        } catch (\Throwable $e) {
+            Log::warning('Gagal menyalin banner ke direktori publik melalui accessor.', [
+                'error' => $e->getMessage(),
+                'relative_path' => $relativePath,
+            ]);
+        }
     }
 }

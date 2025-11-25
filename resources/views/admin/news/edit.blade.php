@@ -38,7 +38,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Banner Saat Ini</label>
                 <div class="mb-4">
-                    <img src="{{ asset('storage/' . $news->banner_image) }}" alt="Current banner" class="h-32 w-auto rounded-lg shadow-md">
+                    <img src="{{ $news->banner_image_url }}" alt="Current banner" class="h-32 w-auto rounded-lg shadow-md">
                 </div>
             </div>
             @endif

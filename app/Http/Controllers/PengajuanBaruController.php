@@ -162,7 +162,7 @@ class PengajuanBaruController extends Controller
                 'tanggal_selesai' => now()->addMonths(12), // Default 1 tahun
                 'status' => 'draft',
                 'tanggal_submit' => now(),
-                'user_id' => 1 // Default user, nanti bisa disesuaikan dengan auth
+                'user_id' => auth()->id()
             ];
             
             Log::info('Data pengajuan yang akan disimpan:', [

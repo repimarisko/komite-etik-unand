@@ -59,7 +59,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'approved_at' => 'datetime',
             'last_login_at' => 'datetime',
-            'status' => 'boolean',
+            'status' => 'string',
         ];
     }
 
@@ -104,6 +104,10 @@ class User extends Authenticatable
      */
     public function hasRole(string $roleName): bool
     {
+        if ($this->relationLoaded('roles')) {
+            return $this->roles->contains('name', $roleName);
+        }
+
         return $this->roles()->where('name', $roleName)->exists();
     }
 
@@ -112,6 +116,10 @@ class User extends Authenticatable
      */
     public function hasAnyRole(array $roles): bool
     {
+        if ($this->relationLoaded('roles')) {
+            return $this->roles->pluck('name')->intersect($roles)->isNotEmpty();
+        }
+
         return $this->roles()->whereIn('name', $roles)->exists();
     }
 
@@ -120,6 +128,10 @@ class User extends Authenticatable
      */
     public function hasAllRoles(array $roles): bool
     {
+        if ($this->relationLoaded('roles')) {
+            return collect($roles)->diff($this->roles->pluck('name'))->isEmpty();
+        }
+
         return $this->roles()->whereIn('name', $roles)->count() === count($roles);
     }
 
@@ -187,7 +199,7 @@ class User extends Authenticatable
      */
     public function isActive(): bool
     {
-        return $this->status === true;
+        return $this->status === 'active';
     }
 
     /**
@@ -195,7 +207,7 @@ class User extends Authenticatable
      */
     public function isAdmin(): bool
     {
-        return $this->hasRole('admin') || $this->hasRole('super_admin');
+        return $this->hasAnyRole(['admin', 'operator', 'verifikator', 'super_admin']);
     }
 
     /**
@@ -222,7 +234,7 @@ class User extends Authenticatable
      */
     public function scopeActive($query)
     {
-        return $query->where('status', true);
+        return $query->where('status', 'active');
     }
 
     /**
@@ -230,7 +242,7 @@ class User extends Authenticatable
      */
     public function scopeInactive($query)
     {
-        return $query->where('status', false);
+        return $query->where('status', 'inactive');
     }
 
     /**

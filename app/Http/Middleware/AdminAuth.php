@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class AdminAuth
@@ -15,10 +16,23 @@ class AdminAuth
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Check if admin is logged in via session
-        if (!$request->session()->get('admin_logged_in')) {
-            return redirect()->route('login');
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Anda harus login terlebih dahulu.');
         }
+
+        $user = Auth::user();
+
+        if (!$user->isActive()) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()
+                ->route('login')
+                ->with('error', 'Akun Anda tidak aktif. Silakan hubungi administrator.');
+        }
+
+        $request->session()->put('admin_logged_in', true);
 
         return $next($request);
     }

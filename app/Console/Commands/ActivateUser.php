@@ -35,10 +35,10 @@ class ActivateUser extends Command
             return 1;
         }
 
-        $currentStatus = $user->status ? 'active' : 'inactive';
+        $currentStatus = $user->status;
         $this->info("Current status: {$currentStatus}");
 
-        $user->update(['status' => true]);
+        $user->update(['status' => 'active']);
 
         $this->info("User {$email} has been activated successfully!");
 

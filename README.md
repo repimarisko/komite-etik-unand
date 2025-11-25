@@ -7,6 +7,64 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Local Development with Docker
+
+The repository ships with a Docker setup that provides PHP-FPM, Nginx, MySQL 8, and a Node/Vite watcher. You only need Docker and Docker Compose on your machine.
+
+### 1. Environment
+
+```bash
+cp .env.example .env
+```
+
+Make sure at minimum the following values are present (these defaults work with the compose file):
+
+```
+APP_URL=http://localhost:8000
+DB_HOST=mysql
+DB_DATABASE=komite_etik_unand
+DB_USERNAME=laravel
+DB_PASSWORD=secret
+MYSQL_ROOT_PASSWORD=secret
+```
+
+### 2. Build and start the stack
+
+```bash
+docker compose up -d --build
+```
+
+The services exposed to your host are:
+
+- Application: http://localhost:8000
+- Vite dev server (HMR): http://localhost:5173
+- MySQL: localhost:3307
+
+If you run Linux and need to match file permissions, export `HOST_UID`/`HOST_GID` with your user values before building.
+
+### 3. Install dependencies & bootstrap Laravel
+
+```bash
+docker compose exec app composer install
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate --seed
+docker compose exec app php artisan storage:link
+```
+
+Vite runs in its own container automatically (`vite` service). If you prefer manual control you can stop it with `docker compose stop vite` and run the commands directly inside the `app` container.
+
+### 4. Useful commands
+
+```bash
+# Tail Laravel logs
+docker compose logs -f app
+
+# Run tests
+docker compose exec app php artisan test
+```
+
+Volumes are used for MySQL data (`mysql_data`), Composer cache, and Node's `node_modules`, so container restarts are quick.
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:

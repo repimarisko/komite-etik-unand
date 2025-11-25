@@ -28,7 +28,7 @@
                     Pendaftaran Anda Telah Diterima
                 </h3>
                 <p class="mt-2 text-sm text-gray-600">
-                    Terima kasih telah mendaftar! Kami telah mengirimkan email verifikasi ke alamat email Anda.
+                    Terima kasih telah mendaftar! Data Anda sedang menunggu verifikasi operator dan super admin.
                 </p>
             </div>
 
@@ -38,15 +38,15 @@
                     <ol class="text-sm text-blue-700 space-y-2">
                         <li class="flex items-start">
                             <span class="flex-shrink-0 w-5 h-5 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-medium mr-3 mt-0.5">1</span>
-                            <span>Periksa email Anda dan klik link verifikasi</span>
+                            <span>Operator akan memverifikasi kelengkapan data Anda</span>
                         </li>
                         <li class="flex items-start">
                             <span class="flex-shrink-0 w-5 h-5 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-medium mr-3 mt-0.5">2</span>
-                            <span>Tunggu persetujuan dari administrator</span>
+                            <span>Super admin meninjau dan menyetujui registrasi</span>
                         </li>
                         <li class="flex items-start">
                             <span class="flex-shrink-0 w-5 h-5 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-medium mr-3 mt-0.5">3</span>
-                            <span>Anda akan menerima email berisi username dan password</span>
+                            <span>Anda akan menerima email berisi username dan password setelah disetujui</span>
                         </li>
                         <li class="flex items-start">
                             <span class="flex-shrink-0 w-5 h-5 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-medium mr-3 mt-0.5">4</span>
@@ -67,7 +67,7 @@
                         <div class="ml-3">
                             <h4 class="text-sm font-medium text-yellow-800">Penting!</h4>
                             <p class="mt-1 text-sm text-yellow-700">
-                                Jika Anda tidak menerima email verifikasi dalam 5 menit, periksa folder spam/junk Anda atau klik tombol "Kirim Ulang" di halaman verifikasi.
+                                Estimasi waktu verifikasi 1-3 hari kerja. Kami akan menghubungi Anda melalui email setelah proses selesai.
                             </p>
                         </div>
                     </div>
@@ -75,17 +75,10 @@
             </div>
 
             <div class="mt-6 space-y-3">
-                <a href="{{ route('verification.notice') }}"
+                <a href="{{ route('login') }}"
                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
-                    Lanjut ke Verifikasi Email
+                    Kembali ke Halaman Login
                 </a>
-                
-                <div class="text-center">
-                    <a href="{{ route('login') }}"
-                       class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
-                        Kembali ke Halaman Login
-                    </a>
-                </div>
             </div>
 
             <!-- Contact Information -->

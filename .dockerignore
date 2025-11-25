@@ -1,0 +1,14 @@
+.git
+.github
+node_modules
+vendor
+storage
+bootstrap/cache
+.env
+*.log
+docker/mysql
+docker-data
+.idea
+.vscode
+coverage
+tests/coverage

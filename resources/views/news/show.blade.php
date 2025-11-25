@@ -25,7 +25,7 @@
         <!-- Gambar Banner -->
         @if ($news->banner_image)
             <div class="w-full">
-                <img src="{{ asset('storage/' . $news->banner_image) }}" 
+                <img src="{{ $news->banner_image_url }}" 
                      alt="{{ $news->title }}" 
                      class="w-full object-cover max-h-[500px]">
             </div>
