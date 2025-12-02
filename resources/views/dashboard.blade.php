@@ -9,24 +9,25 @@
     @php
         use Illuminate\Support\Str;
 
-        $heroImage = $featuredNews?->banner_image_url
-            ?? 'https://images.unsplash.com/photo-1523741543316-beb7fc7023d8?auto=format&fit=crop&w=1400&q=80';
+        $heroImage =
+            $featuredNews?->banner_image_url ??
+            'https://images.unsplash.com/photo-1523741543316-beb7fc7023d8?auto=format&fit=crop&w=1400&q=80';
         $heroTitle = $featuredNews->title ?? 'Portal Komite Etik Universitas Andalas';
         $heroExcerpt = $featuredNews
             ? Str::limit(strip_tags($featuredNews->content), 190)
             : 'Layanan satu pintu untuk pengajuan, pemantauan, dan publikasi berita terkait penilaian etik penelitian.';
-        $newsList = $latestNews->when($featuredNews, fn($items) => $items->where('id', '!=', $featuredNews->id))->take(6);
+        $newsList = $latestNews
+            ->when($featuredNews, fn($items) => $items->where('id', '!=', $featuredNews->id))
+            ->take(6);
     @endphp
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --blue-900: #04134b;
+            --green-900: #018038;
             --blue-800: #0c2f7a;
             --blue-700: #1e449d;
             --blue-100: #e9efff;
@@ -47,7 +48,7 @@
 
         body {
             margin: 0;
-            font-family: 'Source Sans 3', 'Segoe UI', sans-serif;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
             background: var(--bg);
             color: var(--text);
             line-height: 1.6;
@@ -86,18 +87,36 @@
             flex-wrap: wrap;
         }
 
+        .top-links {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            font-weight: 700;
+            color: var(--blue-800);
+            flex-wrap: wrap;
+        }
+
+        .top-links a {
+            color: inherit;
+        }
+
+        .top-links .top-divider {
+            color: var(--muted);
+            font-weight: 600;
+        }
+
         .flag {
-            width: 30px;
-            height: 20px;
-            border-radius: 3px;
-            background: linear-gradient(90deg, #0a3d91 65%, #ffd700 35%);
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.6rem;
-            letter-spacing: 0.06em;
-            color: #fff;
-            font-weight: 700;
+            width: auto;
+            height: 32px;
+        }
+
+        .flag img {
+            height: 100%;
+            width: auto;
+            display: block;
         }
 
         header {
@@ -124,54 +143,17 @@
             gap: 1rem;
         }
 
-        .logo-mark {
-            width: 88px;
-            height: 60px;
-            border: 2px solid #0a3d91;
-            border-radius: 8px;
-            position: relative;
-            overflow: hidden;
-            background: linear-gradient(160deg, #0f2f7a, #0a3d91);
-        }
-
-        .logo-mark::before,
-        .logo-mark::after {
-            content: '';
-            position: absolute;
-            top: 12px;
-            bottom: 12px;
-            width: 2px;
-            background: #fff;
-        }
-
-        .logo-mark::before {
-            left: 22px;
-        }
-
-        .logo-mark::after {
-            right: 22px;
-        }
-
-        .logo-flag {
-            position: absolute;
-            bottom: 10px;
-            left: 12px;
-            width: 32px;
-            height: 20px;
-            border: 1px solid #fff;
-            background: #0f3e94;
-            color: #ffd700;
-            font-size: 0.55rem;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+        .logo-image {
+            height: 68px;
+            width: auto;
+            object-fit: contain;
+            display: block;
         }
 
         .logo-text {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.6rem;
-            color: var(--blue-900);
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            font-size: 1rem;
+            color: var(--green-900);
             line-height: 1.1;
         }
 
@@ -208,7 +190,7 @@
         }
 
         nav {
-            background: var(--blue-900);
+            background: var(--green-900);
             color: #fff;
         }
 
@@ -230,6 +212,61 @@
             font-weight: 600;
             font-size: 0.98rem;
             white-space: nowrap;
+        }
+
+        .nav-dropdown {
+            position: relative;
+        }
+
+        .dropdown-toggle {
+            background: none;
+            border: none;
+            color: inherit;
+            font-weight: 700;
+            font-size: 0.98rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .dropdown-toggle:focus {
+            outline: 2px solid rgba(255, 255, 255, 0.4);
+            outline-offset: 4px;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 0.45rem);
+            left: 0;
+            background: #fff;
+            color: var(--text);
+            border-radius: 10px;
+            padding: 0.6rem 0;
+            min-width: 180px;
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--border);
+            display: none;
+            z-index: 20;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 0.55rem 0.9rem;
+            color: inherit;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .dropdown-menu a:hover {
+            background: var(--blue-100);
+            color: var(--blue-800);
+        }
+
+        .nav-dropdown:hover .dropdown-menu,
+        .nav-dropdown:focus-within .dropdown-menu {
+            display: block;
         }
 
         .hero {
@@ -258,10 +295,10 @@
         }
 
         .hero-copy h1 {
-            font-family: 'Playfair Display', serif;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
             font-size: clamp(2.3rem, 4vw, 3.1rem);
             margin: 0 0 1rem;
-            color: var(--blue-900);
+            color: var(--green-900);
             line-height: 1.1;
         }
 
@@ -405,7 +442,7 @@
         .section-title {
             margin: 0;
             font-size: 1.9rem;
-            color: var(--blue-900);
+            color: var(--green-900);
         }
 
         .section-kicker {
@@ -565,7 +602,7 @@
 
         .guide-item h4 {
             margin: 0 0 0.35rem;
-            color: var(--blue-900);
+            color: var(--green-900);
         }
 
         .guide-item p {
@@ -576,16 +613,19 @@
 
         footer {
             padding: 1.6rem 0 2.2rem;
-            background: #0a1541;
-            color: #dbe2ff;
+            padding-left: 160px;
+            background: #018038;
+            color: #fff;
             margin-top: 2.4rem;
+
         }
+
 
         .footer-inner {
             display: flex;
             flex-wrap: wrap;
             gap: 1.5rem;
-            justify-content: space-between;
+            margin-left: 20px justify-content: space-between;
         }
 
         .footer-brand h3 {
@@ -638,31 +678,35 @@
     <div class="top-bar">
         <div class="container top-bar-content">
             <div class="top-left">
-                <span class="flag">EU</span>
-                <span>Portal resmi Komite Etik – terinspirasi layanan publik Eropa</span>
+                <a href="https://unand.ac.id/"><span>Universitas Andalas | </span></a>
+                <a href="https://www.lppm.unand.ac.id/"><span>LPPM
+                    </span></a>
+
+
             </div>
-            <a href="#" style="font-weight: 700; color: var(--blue-800);">Cara memverifikasi</a>
+            <div class="top-links">
+
+
+            </div>
         </div>
     </div>
 
     <header>
         <div class="container header-inner">
             <div class="logo-group">
-                <div class="logo-mark">
-                    <span class="logo-flag">EU</span>
-                </div>
+                <img src="{{ asset('images/logo-unand.png') }}" alt="Logo Universitas Andalas" class="logo-image">
                 <div class="logo-text">
-                    <div>Komite Etik</div>
-                    <div style="font-size: 1.05rem; font-weight: 600; color: var(--blue-800);">Universitas Andalas</div>
+                    <span>KOMITE ETIK PENELITIAN</span>
+                    <div style="font-size: 1.05rem; font-weight: 600; color: black;">UNIVERSITAS ANDALAS</div>
                 </div>
             </div>
             <div class="header-actions">
-                <div class="pill">🌐 EN</div>
+
                 @auth
                     <a href="{{ route('logout') }}"
-                        onclick="event.preventDefault(); document.getElementById('logout-form-dashboard').submit();"
-                        class="ghost-btn">Logout</a>
-                    <form id="logout-form-dashboard" method="POST" action="{{ route('logout') }}" style="display: none;">
+                        onclick="event.preventdefault(); document.getelementbyid('logout-form-dashboard').submit();"
+                        class="ghost-btn">logout</a>
+                    <form id="logout-form-dashboard" method="post" action="{{ route('logout') }}" style="display: none;">
                         @csrf
                     </form>
                 @else
@@ -675,18 +719,20 @@
 
     <nav>
         <div class="container nav-inner">
-            <a href="#layanan">Layanan</a>
-            <a href="#berita">Berita</a>
-            <a href="#panduan">Panduan</a>
-            <a href="{{ route('profil.index') }}">Profil Komite</a>
-            <a href="{{ route('dosen.show') }}">Data Dosen</a>
+            <a href="#layanan">Beranda</a>
+            <a href="#berita">Profil</a>
+
+            <a href="#panduan">Publikasi</a>
+            <a href="{{ route('profil.index') }}">Informasi Layanan</a>
+            <a href="{{ route('dosen.show') }}">Download</a>
+
         </div>
     </nav>
 
     <section class="hero" style="--hero-image: url('{{ $heroImage }}');">
         <div class="container hero-grid">
             <div class="hero-copy">
-                <p class="eyebrow">Dashboard</p>
+
                 <h1>{{ $heroTitle }}</h1>
                 <p>{{ $heroExcerpt }}</p>
                 <div class="hero-actions">
@@ -698,16 +744,7 @@
                         <a class="ghost-btn" href="#berita">Lihat berita terbaru</a>
                     @endauth
                 </div>
-                <div class="glance">
-                    <div class="glance-item">
-                        <span class="glance-label">Status Protokol</span>
-                        <span class="glance-value">Transparan & Terpantau</span>
-                    </div>
-                    <div class="glance-item">
-                        <span class="glance-label">Dukungan Sekretariat</span>
-                        <span class="glance-value">Setiap langkah</span>
-                    </div>
-                </div>
+
             </div>
             <div class="hero-visual">
                 <div class="hero-card">
@@ -717,8 +754,7 @@
                         <p class="hero-card__title">
                             {{ $featuredNews->title ?? 'Berita terbaru seputar kebijakan etik dan pengumuman komite.' }}
                         </p>
-                        <a class="pill-link"
-                            href="{{ $featuredNews ? route('news.show', $featuredNews) : '#' }}">
+                        <a class="pill-link" href="{{ $featuredNews ? route('news.show', $featuredNews) : '#' }}">
                             {{ $featuredNews ? 'Baca selengkapnya' : 'Lihat agenda komite' }} →
                         </a>
                     </div>
@@ -863,20 +899,13 @@
         </div>
     </section>
 
-    <footer>
-        <div class="container footer-inner">
-            <div class="footer-brand">
-                <h3>Komite Etik UNAND</h3>
-                <p>Menjaga integritas riset dengan layanan transparan dan responsif.</p>
-            </div>
-            <div class="footer-links">
-                <a href="{{ route('profil.index') }}">Profil Komite</a>
-                <a href="#layanan">Layanan</a>
-                <a href="#berita">Berita</a>
-                <a href="#panduan">Panduan</a>
-            </div>
+    <footer class="w-full py-4 flex justify-center">
+        <div class="text-center">
+            <i class="fa fa-copyright" aria-hidden="true"></i>
+            Copyright © 2025 LPPM Universitas Andalas
         </div>
     </footer>
+
 </body>
 
 </html>
