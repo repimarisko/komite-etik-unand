@@ -6,6 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Dashboard | {{ config('app.name', 'Komite Etik UNAND') }}</title>
 
+    @php
+        use Illuminate\Support\Str;
+
+        $heroImage =
+            $featuredNews?->banner_image_url ??
+            'https://images.unsplash.com/photo-1523741543316-beb7fc7023d8?auto=format&fit=crop&w=1400&q=80';
+        $heroTitle = $featuredNews->title ?? 'Portal Komite Etik Universitas Andalas';
+        $heroExcerpt = $featuredNews
+            ? Str::limit(strip_tags($featuredNews->content), 190)
+            : 'Layanan satu pintu untuk pengajuan, pemantauan, dan publikasi berita terkait penilaian etik penelitian.';
+        $newsList = $latestNews
+            ->when($featuredNews, fn($items) => $items->where('id', '!=', $featuredNews->id))
+            ->take(6);
+    @endphp
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -37,9 +52,6 @@
             background: var(--bg);
             color: var(--text);
             line-height: 1.6;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
         }
 
         a {
@@ -200,37 +212,6 @@
             font-weight: 600;
             font-size: 0.98rem;
             white-space: nowrap;
-        }
-
-        .maintenance {
-            padding: 3.5rem 0 3rem;
-            flex: 1;
-        }
-
-        .maintenance-card {
-            background: #fff;
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 2.4rem 1.8rem;
-            text-align: center;
-            box-shadow: 0 18px 42px rgba(13, 26, 70, 0.12);
-        }
-
-        .maintenance-icon {
-            font-size: 2.6rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .maintenance-card h1 {
-            margin: 0 0 0.6rem;
-            color: var(--green-900);
-            font-size: 1.8rem;
-        }
-
-        .maintenance-card p {
-            margin: 0;
-            color: var(--muted);
-            font-weight: 600;
         }
 
         .nav-dropdown {
@@ -748,15 +729,175 @@
         </div>
     </nav>
 
-    <main class="maintenance" id="layanan">
-        <div class="container maintenance-card">
-            <div class="maintenance-icon">🚧</div>
-            <h1>This website is currently under development.</h1>
-            <p>Dashboard dalam proses pengembangan. Silakan kembali lagi nanti.</p>
+    <section class="hero" style="--hero-image: url('{{ $heroImage }}');">
+        <div class="container hero-grid">
+            <div class="hero-copy">
+
+                <h1>{{ $heroTitle }}</h1>
+                <p>{{ $heroExcerpt }}</p>
+                <div class="hero-actions">
+                    @auth
+                        <a class="primary-btn" href="{{ route('pengajuan-baru.index') }}">Mulai Pengajuan</a>
+                        <a class="ghost-btn" href="#layanan">Lihat Menu Layanan</a>
+                    @else
+                        <a class="primary-btn" href="{{ route('login') }}">Masuk untuk ajukan</a>
+                        <a class="ghost-btn" href="#berita">Lihat berita terbaru</a>
+                    @endauth
+                </div>
+
+            </div>
+            <div class="hero-visual">
+                <div class="hero-card">
+                    <div class="hero-card__image"></div>
+                    <div class="hero-card__content">
+                        <span class="hero-pill">Sorotan</span>
+                        <p class="hero-card__title">
+                            {{ $featuredNews->title ?? 'Berita terbaru seputar kebijakan etik dan pengumuman komite.' }}
+                        </p>
+                        <a class="pill-link" href="{{ $featuredNews ? route('news.show', $featuredNews) : '#' }}">
+                            {{ $featuredNews ? 'Baca selengkapnya' : 'Lihat agenda komite' }} →
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div id="berita"></div>
-        <div id="panduan"></div>
-    </main>
+    </section>
+
+    <section class="section" id="layanan">
+        <div class="container">
+            <div class="section-head">
+                <div>
+                    <p class="section-kicker">akses cepat</p>
+                    <h2 class="section-title">Layanan utama</h2>
+                </div>
+                <a class="pill-link" href="{{ route('profil.index') }}">Kenali komite →</a>
+            </div>
+            @php
+                $actions = [
+                    [
+                        'title' => 'Pengajuan Baru',
+                        'desc' => 'Kirim proposal penelitian untuk dinilai oleh Komite Etik.',
+                        'icon' => '📝',
+                        'link' => route('pengajuan-baru.index'),
+                    ],
+                    [
+                        'title' => 'Pengajuan Perbaikan',
+                        'desc' => 'Tambahkan revisi setelah menerima catatan perbaikan.',
+                        'icon' => '🧭',
+                        'link' => route('perbaikan.index'),
+                    ],
+                    [
+                        'title' => 'Amandemen',
+                        'desc' => 'Laporkan perubahan protokol atau metode penelitian.',
+                        'icon' => '📄',
+                        'link' => route('amandemen.index'),
+                    ],
+                    [
+                        'title' => 'Perpanjangan Penelitian',
+                        'desc' => 'Ajukan perpanjangan masa berlaku izin etik.',
+                        'icon' => '⏳',
+                        'link' => route('perpanjangan.index'),
+                    ],
+                    [
+                        'title' => 'Laporan Akhir',
+                        'desc' => 'Serahkan laporan hasil penelitian untuk penutupan.',
+                        'icon' => '✅',
+                        'link' => route('laporan-akhir.index'),
+                    ],
+                    [
+                        'title' => 'Modul KTD-SAE',
+                        'desc' => 'Laporkan kejadian tak diharapkan secara cepat.',
+                        'icon' => '🚑',
+                        'link' => route('ktd-sae.index'),
+                    ],
+                ];
+            @endphp
+            <div class="actions-grid">
+                @foreach ($actions as $action)
+                    <a href="{{ $action['link'] }}" class="action-card">
+                        <div class="action-icon">{{ $action['icon'] }}</div>
+                        <div>
+                            <h3>{{ $action['title'] }}</h3>
+                            <p>{{ $action['desc'] }}</p>
+                            @guest
+                                <span style="font-size: 0.85rem; color: var(--muted); font-weight: 600;">Login mungkin
+                                    diperlukan</span>
+                            @endguest
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="berita">
+        <div class="container">
+            <div class="section-head">
+                <div>
+                    <p class="section-kicker">berita & pembaruan</p>
+                    <h2 class="section-title">Suara terbaru dari Komite Etik</h2>
+                </div>
+                @if ($featuredNews)
+                    <a class="pill-link" href="{{ route('news.show', $featuredNews) }}">Baca berita unggulan →</a>
+                @endif
+            </div>
+            @if ($newsList->count())
+                <div class="news-grid">
+                    @foreach ($newsList as $news)
+                        <article class="news-card">
+                            <div class="news-thumb" style="background-image: url('{{ $news->banner_image_url }}');">
+                            </div>
+                            <div class="news-body">
+                                <span class="news-tag">Publikasi</span>
+                                <h3>{{ $news->title }}</h3>
+                                <p>{{ Str::limit(strip_tags($news->content), 130) }}</p>
+                                <div class="news-meta">
+                                    {{ optional($news->published_at)->translatedFormat('d M Y') ?? 'Tanggal belum tersedia' }}
+                                </div>
+                            </div>
+                        </article>
+                    @endforeach
+                </div>
+            @else
+                <div class="guide-item">
+                    <h4>Belum ada berita</h4>
+                    <p>Pengumuman akan tampil di sini segera setelah Komite Etik mempublikasikannya.</p>
+                </div>
+            @endif
+        </div>
+    </section>
+
+    <section class="section" id="panduan">
+        <div class="container">
+            <div class="guides">
+                <div class="section-head" style="margin-bottom: 1rem;">
+                    <div>
+                        <p class="section-kicker">panduan & referensi</p>
+                        <h2 class="section-title" style="font-size: 1.6rem;">Mulai dengan langkah yang jelas</h2>
+                    </div>
+                    <a class="pill-link" href="{{ route('profil.index') }}">Hubungi Sekretariat →</a>
+                </div>
+                <div class="guides-grid">
+                    <div class="guide-item">
+                        <h4>Checklist Berkas</h4>
+                        <p>Pastikan informed consent, protokol, dan lampiran etis tersusun rapi sebelum dikirim.</p>
+                    </div>
+                    <div class="guide-item">
+                        <h4>Timeline Penilaian</h4>
+                        <p>Pengajuan diproses terjadwal; pastikan tenggat sidang dipantau bersama tim Anda.</p>
+                    </div>
+                    <div class="guide-item">
+                        <h4>Perubahan Protokol</h4>
+                        <p>Amandemen wajib dilaporkan agar izin tetap relevan dengan praktik lapangan.</p>
+                    </div>
+                    <div class="guide-item">
+                        <h4>Konsultasi Awal</h4>
+                        <p>Butuh arahan? Sekretariat siap memberi dukungan sebelum pengajuan formal.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <footer class="w-full py-4 flex justify-center">
         <div class="text-center">

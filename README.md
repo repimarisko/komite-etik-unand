@@ -65,6 +65,28 @@ docker compose exec app php artisan test
 
 Volumes are used for MySQL data (`mysql_data`), Composer cache, and Node's `node_modules`, so container restarts are quick.
 
+## Build production image
+
+The Dockerfile now installs Composer dependencies and builds Vite assets in separate stages so the final PHP-FPM image ships with everything baked in.
+
+```bash
+docker build -t komite-etik-unand:latest .
+```
+
+Run it behind Nginx (using `docker/nginx/default.conf`) and a DB of your choice. For a Compose-based production stack, remove the host bind mounts from `app`/`nginx` and share a named volume instead, e.g.:
+
+```yaml
+app:
+  volumes:
+    - app_code:/var/www/html
+nginx:
+  volumes:
+    - app_code:/var/www/html:ro
+    - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+volumes:
+  app_code:
+```
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
