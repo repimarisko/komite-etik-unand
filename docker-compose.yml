@@ -20,7 +20,10 @@ services:
         condition: service_healthy
 
   nginx:
-    image: nginx:1.27-alpine
+    build:
+      context: ./docker/nginx
+      dockerfile: Dockerfile
+    image: komite-etik-nginx
     container_name: komite-etik-nginx
     restart: unless-stopped
     ports:

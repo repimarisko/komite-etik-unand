@@ -12,10 +12,12 @@ ARG GID
 RUN groupmod -o -g ${GID} www-data && \
     usermod -o -u ${UID} www-data
 
+
 # System dependencies + PHP extensions
 RUN apt-get update && apt-get install -y \
     git \
     curl \
+    docker.io \
     zip \
     unzip \
     libzip-dev \
