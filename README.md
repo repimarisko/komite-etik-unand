@@ -9,7 +9,7 @@
 
 ## Local Development with Docker
 
-The repository ships with a Docker setup that provides PHP-FPM, Nginx, MySQL 8, and a Node/Vite watcher. You only need Docker and Docker Compose on your machine.
+Everything now runs in a single container (PHP-FPM + Nginx). Point your database settings at an existing MySQL instance; if you run MySQL on the host machine, use `DB_HOST=host.docker.internal`.
 
 ### 1. Environment
 
@@ -17,53 +17,42 @@ The repository ships with a Docker setup that provides PHP-FPM, Nginx, MySQL 8, 
 cp .env.example .env
 ```
 
-Make sure at minimum the following values are present (these defaults work with the compose file):
+Set at least:
 
 ```
-APP_URL=http://localhost:8000
-DB_HOST=mysql
+APP_URL=http://localhost:9091
+DB_HOST=host.docker.internal   # or another reachable DB host
 DB_DATABASE=komite_etik_unand
-DB_USERNAME=laravel
-DB_PASSWORD=secret
-MYSQL_ROOT_PASSWORD=secret
+DB_USERNAME=your_user
+DB_PASSWORD=your_password
 ```
 
-### 2. Build and start the stack
+The `.env` file on your host is bind-mounted into the container; edit it locally and it will be picked up without rebuilds.
+
+### 2. Build and start
 
 ```bash
 docker compose up -d --build
 ```
 
-The services exposed to your host are:
+The app is exposed on `http://localhost:9091` (or `APP_PORT` if you override it).
 
-- Application: http://localhost:8000
-- Vite dev server (HMR): http://localhost:5173
-- MySQL: localhost:3307
-
-If you run Linux and need to match file permissions, export `HOST_UID`/`HOST_GID` with your user values before building.
-
-### 3. Install dependencies & bootstrap Laravel
+### 3. Bootstrap Laravel
 
 ```bash
-docker compose exec app composer install
 docker compose exec app php artisan key:generate
 docker compose exec app php artisan migrate --seed
 docker compose exec app php artisan storage:link
 ```
 
-Vite runs in its own container automatically (`vite` service). If you prefer manual control you can stop it with `docker compose stop vite` and run the commands directly inside the `app` container.
-
 ### 4. Useful commands
 
 ```bash
-# Tail Laravel logs
 docker compose logs -f app
-
-# Run tests
 docker compose exec app php artisan test
 ```
 
-Volumes are used for MySQL data (`mysql_data`), Composer cache, and Node's `node_modules`, so container restarts are quick.
+Frontend assets are built during the image build; rebuild the image when you change them.
 
 ## Build production image
 

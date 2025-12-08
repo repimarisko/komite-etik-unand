@@ -3,23 +3,23 @@
 ARG UID=1000
 ARG GID=1000
 
-FROM php:8.2-fpm AS base
+FROM php:8.2-fpm-bullseye AS base
 
 ARG UID
 ARG GID
 
-# Align the www-data user/group with the host to avoid permission issues
+# Align the container user with the host to avoid permission issues on bind mounts
 RUN groupmod -o -g ${GID} www-data && \
     usermod -o -u ${UID} www-data
 
-
-# System dependencies + PHP extensions
+# System dependencies, PHP extensions, and tools
 RUN apt-get update && apt-get install -y \
+    nginx \
     git \
     curl \
-    docker.io \
     zip \
     unzip \
+    supervisor \
     libzip-dev \
     libpng-dev \
     libjpeg62-turbo-dev \
@@ -32,7 +32,7 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install pdo_mysql gd zip bcmath \
     && rm -rf /var/lib/apt/lists/*
 
-# Composer for runtime usage (artisan, installs inside dev containers)
+# Composer for installing dependencies
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Custom PHP config
@@ -41,7 +41,7 @@ COPY docker/php/conf.d/app.ini /usr/local/etc/php/conf.d/app.ini
 WORKDIR /var/www/html
 
 # ---------- Composer dependencies ----------
-FROM base AS composer-install
+FROM base AS vendor
 
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-scripts --no-interaction --no-progress --prefer-dist
@@ -62,13 +62,28 @@ RUN npm run build
 # ---------- Final image ----------
 FROM base AS production
 
-COPY --from=composer-install /var/www/html /var/www/html
+COPY --from=vendor /var/www/html /var/www/html
 COPY --from=asset-builder /app/public/build /var/www/html/public/build
 
-RUN chown -R www-data:www-data storage bootstrap/cache && \
-    find storage bootstrap/cache -type d -exec chmod 775 {} \; && \
-    find storage bootstrap/cache -type f -exec chmod 664 {} \;
+# Replace the default Nginx site with the app config
+RUN rm -f /etc/nginx/conf.d/default.conf \
+    /etc/nginx/sites-enabled/default \
+    /etc/nginx/sites-available/default
+COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 
-USER www-data
+# Ensure runtime directories exist with sane permissions
+RUN mkdir -p /var/www/html/storage/logs \
+    /var/www/html/storage/framework/cache \
+    /var/www/html/storage/framework/data \
+    /var/www/html/storage/framework/sessions \
+    /var/www/html/storage/framework/testing \
+    /var/www/html/storage/framework/views \
+    /var/www/html/bootstrap/cache \
+    /run/php && \
+    chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-CMD ["php-fpm"]
+COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+EXPOSE 80
+CMD ["/entrypoint.sh"]
