@@ -18,7 +18,9 @@ services:
       - ./.env:/var/www/html/.env
       - storage_data:/var/www/html/storage
       - bootstrap_cache:/var/www/html/bootstrap/cache
+      - mysql_data:/var/lib/mysql
 
 volumes:
   storage_data:
   bootstrap_cache:
+  mysql_data:
