@@ -20,7 +20,6 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     supervisor \
-    default-mysql-server \
     libzip-dev \
     libpng-dev \
     libjpeg62-turbo-dev \

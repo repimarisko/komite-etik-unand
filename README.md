@@ -9,7 +9,7 @@
 
 ## Local Development with Docker
 
-Everything now runs in a single container (PHP-FPM + Nginx). Point your database settings at an existing MySQL instance; if you run MySQL on the host machine, use `DB_HOST=host.docker.internal`.
+The Compose stack now runs two containers: the Laravel app (PHP-FPM + Nginx) and a dedicated `mysql-server` instance. The app reaches the DB via the internal hostname `mysql-server` and you can optionally expose the database to your host with `DB_FORWARD_PORT`.
 
 ### 1. Environment
 
@@ -21,10 +21,12 @@ Set at least:
 
 ```
 APP_URL=http://localhost:9091
-DB_HOST=host.docker.internal   # or another reachable DB host
+DB_HOST=mysql-server
 DB_DATABASE=komite_etik_unand
-DB_USERNAME=your_user
-DB_PASSWORD=your_password
+DB_USERNAME=app
+DB_PASSWORD=app
+DB_ROOT_PASSWORD=root          # root password for the mysql-server container
+DB_FORWARD_PORT=3306           # host port that forwards to the container's 3306
 ```
 
 The `.env` file on your host is bind-mounted into the container; edit it locally and it will be picked up without rebuilds.
