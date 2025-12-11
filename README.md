@@ -21,16 +21,17 @@ Set at least:
 
 ```
 APP_URL=http://localhost:9000
-DB_HOST=mysql-server
+DB_HOST=10.250.30.19
 DB_DATABASE=komite_etik_unand
-DB_USERNAME=app
-DB_PASSWORD=app
-DB_ROOT_USERNAME=root        # optional: super user used to create the database
-DB_ROOT_PASSWORD=root          # root password for the mysql-server container
-DB_FORWARD_PORT=3307           # host port that forwards to the container's 3307
+DB_USERNAME=docker
+DB_PASSWORD=us3R@dev.2025
+DB_ROOT_USERNAME=             # optional: override if you need a different privileged account
+DB_ROOT_PASSWORD=
+DB_FORWARD_PORT=               # optional: leave empty when connecting to the remote host above
 ```
 
 The `.env` file on your host is bind-mounted into the container; edit it locally and it will be picked up without rebuilds.
+The entrypoint reads this file on every boot to learn the database credentials and will only run automatic migrations when they match `10.250.30.19` / `docker` / `us3R@dev.2025`.
 
 ### 2. Build and start
 
@@ -40,7 +41,7 @@ docker compose up -d --build
 
 The app is exposed on `http://localhost:9000` (or `APP_PORT` if you override it).
 
-On the very first boot the container waits for the database to accept connections, creates the schema (if your DB user has the privilege, falling back to the root credentials above), and runs any pending migrations exactly once. Future boots only re-run migrations when you add new migration files.
+On the very first boot the container waits for the database at `10.250.30.19` (user `docker`, password `us3R@dev.2025`) to accept connections, creates the schema (when the account has permission), and runs any pending migrations exactly once. Future boots only re-run migrations when you add new migration files, and only when those exact MySQL credentials are configured.
 
 ### 3. Bootstrap Laravel
 
