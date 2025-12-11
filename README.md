@@ -20,13 +20,13 @@ cp .env.example .env
 Set at least:
 
 ```
-APP_URL=http://localhost:9091
+APP_URL=http://localhost:9000
 DB_HOST=mysql-server
 DB_DATABASE=komite_etik_unand
 DB_USERNAME=app
 DB_PASSWORD=app
 DB_ROOT_PASSWORD=root          # root password for the mysql-server container
-DB_FORWARD_PORT=3306           # host port that forwards to the container's 3306
+DB_FORWARD_PORT=3307           # host port that forwards to the container's 3307
 ```
 
 The `.env` file on your host is bind-mounted into the container; edit it locally and it will be picked up without rebuilds.
@@ -37,7 +37,7 @@ The `.env` file on your host is bind-mounted into the container; edit it locally
 docker compose up -d --build
 ```
 
-The app is exposed on `http://localhost:9091` (or `APP_PORT` if you override it).
+The app is exposed on `http://localhost:9000` (or `APP_PORT` if you override it).
 
 ### 3. Bootstrap Laravel
 
