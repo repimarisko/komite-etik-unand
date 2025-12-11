@@ -25,6 +25,7 @@ DB_HOST=mysql-server
 DB_DATABASE=komite_etik_unand
 DB_USERNAME=app
 DB_PASSWORD=app
+DB_ROOT_USERNAME=root        # optional: super user used to create the database
 DB_ROOT_PASSWORD=root          # root password for the mysql-server container
 DB_FORWARD_PORT=3307           # host port that forwards to the container's 3307
 ```
@@ -38,6 +39,8 @@ docker compose up -d --build
 ```
 
 The app is exposed on `http://localhost:9000` (or `APP_PORT` if you override it).
+
+On the very first boot the container waits for the database to accept connections, creates the schema (if your DB user has the privilege, falling back to the root credentials above), and runs any pending migrations exactly once. Future boots only re-run migrations when you add new migration files.
 
 ### 3. Bootstrap Laravel
 
