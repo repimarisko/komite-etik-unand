@@ -15,5 +15,27 @@ for dir in storage/logs storage/framework/cache storage/framework/data storage/f
 done
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
+# Wait for database to be reachable before running migrations
+if [ -n "${DB_HOST}" ] && [ -n "${DB_PORT}" ]; then
+    echo "Waiting for database at ${DB_HOST}:${DB_PORT}..."
+    for i in $(seq 1 30); do
+        if mysqladmin ping -h"${DB_HOST}" -P"${DB_PORT}" -u"${DB_USERNAME:-root}" -p"${DB_PASSWORD:-}" --silent; then
+            db_ready=1
+            break
+        fi
+        sleep 2
+    done
+
+    if [ -z "${db_ready}" ]; then
+        echo "Database is not reachable after waiting, exiting."
+        exit 1
+    fi
+fi
+
+# Run pending migrations automatically on container start
+if [ -f /var/www/html/artisan ]; then
+    php /var/www/html/artisan migrate --force
+fi
+
 php-fpm -D
 exec nginx -g "daemon off;"
